@@ -4,6 +4,7 @@
 		"activities": [
 			{
 				"name": "Run_E2E",
+				"description": "it should be change after 2 day",
 				"type": "ExecutePipeline",
 				"dependsOn": [],
 				"policy": {
