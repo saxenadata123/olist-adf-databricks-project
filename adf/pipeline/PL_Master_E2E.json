@@ -1,0 +1,140 @@
+{
+	"name": "PL_Master_E2E",
+	"properties": {
+		"activities": [
+			{
+				"name": "PL_Master_Ingest_Bronze",
+				"type": "ExecutePipeline",
+				"dependsOn": [],
+				"policy": {
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "PL_Master_Ingest_Bronze",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true
+				}
+			},
+			{
+				"name": "NB_Silver_DQ",
+				"type": "DatabricksNotebook",
+				"dependsOn": [
+					{
+						"activity": "PL_Master_Ingest_Bronze",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.01:00:00",
+					"retry": 1,
+					"retryIntervalInSeconds": 60,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"notebookPath": "/Users/ankitsaxena386@gmail.com/02_silver_with_dq",
+					"baseParameters": {
+						"run_id": {
+							"value": "@pipeline().RunId",
+							"type": "Expression"
+						}
+					}
+				},
+				"linkedServiceName": {
+					"referenceName": "LS_DBX_Olist",
+					"type": "LinkedServiceReference"
+				}
+			},
+			{
+				"name": "NB_Gold",
+				"type": "DatabricksNotebook",
+				"dependsOn": [
+					{
+						"activity": "NB_Silver_DQ",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.01:00:00",
+					"retry": 1,
+					"retryIntervalInSeconds": 60,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"notebookPath": "/Users/ankitsaxena386@gmail.com/03_silver_to_gold"
+				},
+				"linkedServiceName": {
+					"referenceName": "LS_DBX_Olist",
+					"type": "LinkedServiceReference"
+				}
+			},
+			{
+				"name": "NB_SCD2_Customer",
+				"type": "DatabricksNotebook",
+				"dependsOn": [
+					{
+						"activity": "NB_Gold",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.01:00:00",
+					"retry": 1,
+					"retryIntervalInSeconds": 60,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"notebookPath": "/Users/ankitsaxena386@gmail.com/05_scd2_prod"
+				},
+				"linkedServiceName": {
+					"referenceName": "LS_DBX_Olist",
+					"type": "LinkedServiceReference"
+				}
+			},
+			{
+				"name": "NB_Incremental_Orders",
+				"type": "DatabricksNotebook",
+				"dependsOn": [
+					{
+						"activity": "NB_SCD2_Customer",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.01:00:00",
+					"retry": 1,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"notebookPath": "/Users/ankitsaxena386@gmail.com/06_incremental_orders"
+				},
+				"linkedServiceName": {
+					"referenceName": "LS_DBX_Olist",
+					"type": "LinkedServiceReference"
+				}
+			}
+		],
+		"annotations": [],
+		"lastPublishTime": "2026-10-15T07:52:52Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}

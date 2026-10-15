@@ -1,0 +1,11 @@
+{
+	"name": "LS_AKV_Olist",
+	"type": "Microsoft.DataFactory/factories/linkedservices",
+	"properties": {
+		"annotations": [],
+		"type": "AzureKeyVault",
+		"typeProperties": {
+			"baseUrl": "https://kv-olist-dev-2026.vault.azure.net/"
+		}
+	}
+}

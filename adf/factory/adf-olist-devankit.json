@@ -1,0 +1,15 @@
+{
+	"name": "adf-olist-devankit",
+	"properties": {
+		"trustModeClaimForMi": {
+			"value": "Disabled",
+			"editable": true
+		}
+	},
+	"location": "centralindia",
+	"identity": {
+		"type": "SystemAssigned",
+		"principalId": "522ef0a0-ffa2-4959-b79f-7f99c73b893d",
+		"tenantId": "ee5b145e-b2aa-49b6-83ff-6d4ee74bd337"
+	}
+}

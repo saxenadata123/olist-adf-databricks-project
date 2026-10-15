@@ -1,0 +1,110 @@
+{
+	"name": "PL_Run_E2E_With_Logging",
+	"properties": {
+		"activities": [
+			{
+				"name": "Run_E2E",
+				"type": "ExecutePipeline",
+				"dependsOn": [],
+				"policy": {
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "PL_Master_E2E",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true
+				}
+			},
+			{
+				"name": "Log success",
+				"type": "DatabricksNotebook",
+				"dependsOn": [
+					{
+						"activity": "Run_E2E",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"notebookPath": "/Users/ankitsaxena386@gmail.com/07_audit_log",
+					"baseParameters": {
+						"pipeline_name": {
+							"value": "@pipeline().Pipeline",
+							"type": "Expression"
+						},
+						"adf_run_id": {
+							"value": "@pipeline().RunId",
+							"type": "Expression"
+						},
+						"child_run_id": {
+							"value": "@activity('Run_E2E').output.pipelineRunId",
+							"type": "Expression"
+						},
+						"status": "Succeeded",
+						"trigger_name": {
+							"value": "@pipeline().TriggerName",
+							"type": "Expression"
+						},
+						"trigger_time": {
+							"value": "@string(pipeline().TriggerTime)",
+							"type": "Expression"
+						}
+					}
+				},
+				"linkedServiceName": {
+					"referenceName": "LS_DBX_Olist",
+					"type": "LinkedServiceReference"
+				}
+			},
+			{
+				"name": "Log failure",
+				"type": "DatabricksNotebook",
+				"dependsOn": [
+					{
+						"activity": "Log success",
+						"dependencyConditions": [
+							"Failed"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"notebookPath": "/Users/ankitsaxena386@gmail.com/07_audit_log",
+					"baseParameters": {
+						"status": "Failed",
+						"error_message": {
+							"value": "@string(activity('Run_E2E').error.message)",
+							"type": "Expression"
+						}
+					}
+				},
+				"linkedServiceName": {
+					"referenceName": "LS_DBX_Olist",
+					"type": "LinkedServiceReference"
+				}
+			}
+		],
+		"annotations": [],
+		"lastPublishTime": "2026-10-15T08:06:31Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}
